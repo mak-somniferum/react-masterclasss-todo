@@ -5,8 +5,8 @@ import { useForm } from "react-hook-form";
 //   const [todo, setTodo] = useState("");
 //   const [todoError, setTodoError] = useState("");
 //   const onChange = (event:React.FormEvent<HTMLInputElement>) => {
-//     const { 
-//       currentTarget: { value }, 
+//     const {
+//       currentTarget: { value },
 //     } = event;
 //     setTodoError("");
 //     setTodo(value);
@@ -29,20 +29,45 @@ import { useForm } from "react-hook-form";
 //   );
 // }
 
-function ToDoList (){
-  const { register, watch, handleSubmit, formState } = useForm(); // register: input 등록 / watch: 감지 / handleSubmit: onValid & onInvalid
-  const onValid = (data: any) => {
-    console.log(data)
-  }
-  console.log(formState.errors)
+interface IForm {
+  Email: string;
+  FirstName: string;
+  LastName: string;
+  Password: string;
+  PasswordChk: string;
+  Address?: string;
+}
+
+function ToDoList() {
+  const {
+    register, // input 등록
+    watch, // 감지
+    handleSubmit, // validatin
+    formState: { errors }, // errors
+  } = useForm<IForm>({
+    defaultValues: {
+      Email: "@naver.com",
+    },
+  });
+  const onValid = (data: IForm) => {
+    console.log(1);
+  };
+  console.log(watch(["Password", "PasswordChk"]));
   return (
     <div>
       <form style={{ display: "flex", flexDirection: "column" }} onSubmit={handleSubmit(onValid)}>
-        <input {...register("Email", { required: "Email is required" })} placeholder="Email" />
-        <input {...register("First Name", { required: true })} placeholder="First Name" />
-        <input {...register("Last Name", { required: true })} placeholder="Last Name" />
-        <input {...register("Password", { required: true, minLength: { value: 8, message: "Your password is too short." } })} placeholder="Password" />
-        <input {...register("Address", { required: true })} placeholder="Address" />
+        <input style={{ borderColor: errors?.Email && "red" }} {...register("Email", { required: "Email is required", pattern: { value: /^[A-Za-z0-9._%+-]+@naver\.com$/, message: "Only naver.com emails allowed" } })} placeholder="Email" />
+        <span>{errors?.Email?.message}</span>
+        <input {...register("FirstName", { required: "FirstName is required" })} placeholder="First Name" />
+        <span>{errors?.FirstName?.message}</span>
+        <input {...register("LastName", { required: "LastName is required" })} placeholder="Last Name" />
+        <span>{errors?.LastName?.message}</span>
+        <input {...register("Password", { required: "Password is required", minLength: { value: 8, message: "Your password is too short." } })} placeholder="Password" />
+        <span>{errors?.Password?.message}</span>
+        <input {...register("PasswordChk", { required: "Password check is required", minLength: { value: 8, message: "Your password is too short." } })} placeholder="Password check" />
+        <span>{errors?.PasswordChk?.message}</span>
+        <input {...register("Address")} placeholder="Address" />
+        <span>{errors?.Address?.message}</span>
         <button>Add</button>
       </form>
     </div>
