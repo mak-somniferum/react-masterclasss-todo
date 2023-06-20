@@ -36,6 +36,7 @@ interface IForm {
   Password: string;
   PasswordChk: string;
   Address?: string;
+  extraError?: string;
 }
 
 function ToDoList() {
@@ -44,31 +45,45 @@ function ToDoList() {
     watch, // 감지
     handleSubmit, // validatin
     formState: { errors }, // errors
+    setError,
   } = useForm<IForm>({
     defaultValues: {
       Email: "@naver.com",
     },
   });
   const onValid = (data: IForm) => {
-    console.log(1);
+    if (data.Password !== data.PasswordChk) {
+      setError("PasswordChk", { message: "Password is not the same" }, { shouldFocus: true });
+    }
+    setError("extraError", { message: "Server offline" });
   };
-  console.log(watch(["Password", "PasswordChk"]));
+  console.log(errors);
   return (
     <div>
       <form style={{ display: "flex", flexDirection: "column" }} onSubmit={handleSubmit(onValid)}>
         <input style={{ borderColor: errors?.Email && "red" }} {...register("Email", { required: "Email is required", pattern: { value: /^[A-Za-z0-9._%+-]+@naver\.com$/, message: "Only naver.com emails allowed" } })} placeholder="Email" />
         <span>{errors?.Email?.message}</span>
-        <input {...register("FirstName", { required: "FirstName is required" })} placeholder="First Name" />
+        <input
+          {...register("FirstName", {
+            required: "FirstName is required",
+            validate: {
+              noNico: value => (value.includes("nico") ? "No nicos allowed" : true),
+              noNick: value => (value.includes("nick") ? "No nicks allowed" : true),
+            },
+          })}
+          placeholder="First Name"
+        />
         <span>{errors?.FirstName?.message}</span>
         <input {...register("LastName", { required: "LastName is required" })} placeholder="Last Name" />
         <span>{errors?.LastName?.message}</span>
-        <input {...register("Password", { required: "Password is required", minLength: { value: 8, message: "Your password is too short." } })} placeholder="Password" />
+        <input {...register("Password", { required: "Password is required", minLength: { value: 4, message: "Your password is too short." } })} placeholder="Password" />
         <span>{errors?.Password?.message}</span>
-        <input {...register("PasswordChk", { required: "Password check is required", minLength: { value: 8, message: "Your password is too short." } })} placeholder="Password check" />
+        <input {...register("PasswordChk", { required: "Password check is required" })} placeholder="Password check" />
         <span>{errors?.PasswordChk?.message}</span>
         <input {...register("Address")} placeholder="Address" />
         <span>{errors?.Address?.message}</span>
         <button>Add</button>
+        <span>{errors?.extraError?.message}</span>
       </form>
     </div>
   );
