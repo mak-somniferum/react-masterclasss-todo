@@ -1,5 +1,10 @@
+export enum Categories {
+  "TO_DO",
+  "DOING",
+  "DONE",
+}
 export interface IToDo {
   id: number;
   text: string;
-  category: "TO_DO" | "DOING" | "DONE";
+  category: Categories;
 }
